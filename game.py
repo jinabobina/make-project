@@ -10,6 +10,7 @@ import pandas as pd
 import random
 plotly.offline.init_notebook_mode(connected=True)
 
+# this function is in charge of re plotting the map
 def plot(df, q):
 
     scl = [
@@ -41,7 +42,6 @@ def updatePoints(df, state):
         if row['code'] == state:
             df.ix[index, 'points'] = 1
     
-            #replot map here... 
 
 def showNextQuestion(curr_question, q):
     i.set(i.get() + 1)
