@@ -2,12 +2,13 @@ from tkinter import *
 import tkinter as ttk
 from tkinter import messagebox
 import plotly
-import plotly.plotly as py
+import plotly.plotly as plt
 import plotly.graph_objs as go
 from plotly.offline import init_notebook_mode
-import plotly.graph_objs as go
 import pandas as pd
 import random
+from PIL import ImageTk, Image
+
 plotly.offline.init_notebook_mode(connected=True)
 
 # this function is in charge of re plotting the map
@@ -42,7 +43,6 @@ def updatePoints(df, state):
         if row['code'] == state:
             df.ix[index, 'points'] = 1
     
-
 def showNextQuestion(curr_question, q):
     i.set(i.get() + 1)
     if i.get() == len(q):
@@ -51,11 +51,8 @@ def showNextQuestion(curr_question, q):
         curr_question.set(q[order[i.get()]])
 
 def submitPressed(df, currentIndex, order, userAnswer, answers, curr_question, questions):
-
-    print(userAnswer)
-    print('corect answer ' + answers[currentIndex.get()])
     #if correct, update excel, color map, 
-    if (userAnswer == answers[currentIndex.get()]):
+    if (userAnswer == answers[order[currentIndex.get()]]):
         print("correct")
         updatePoints(df, userAnswer)
         showNextQuestion(curr_question, questions)
@@ -65,31 +62,27 @@ def submitPressed(df, currentIndex, order, userAnswer, answers, curr_question, q
         print("incorrect")
         messagebox.showinfo("Error", "Incorrect. Try Again!")
 
-# on change dropdown value
+# this function is called whenever drop down value is changed
 def change_dropdown(*args):
-    print( tkvar.get() )
+    print(tkvar.get())
  
-#call this everytime you need to update points 
+#intializing the data
 df = pd.read_csv('info.csv')
 
 for col in df.columns:
     df[col] = df[col].astype(str)
-
-# figure.go=Figure(data=data, layout=layout)
-# py.plot(figure, filename = 'Color the US')
 
 questions = pd.read_csv('questions.csv')
 q = questions['Questions']
 a = questions['Answer']
 
 order = [i for i in range(0, len(q))]
-#random.shuffle(order)
+random.shuffle(order)
 
+#intializing the game screen GUI
 root = Tk()
 root.title("Color the US")
 root.configure(bg='aliceblue')
-
-#background
 
 # Add a grid
 mainframe = Frame(root)
@@ -99,6 +92,7 @@ mainframe.rowconfigure(0, weight = 1)
 mainframe.pack(pady = 100, padx = 100)
 mainframe.configure(bg = 'aliceblue')
 
+#adding labels and buttons and dropdowns to GUI
 lbl = Label(mainframe, text = "Color the US", font = ("Arial Bold",25), bg = 'aliceblue')
 lbl.grid(column = 2, row=0)
 
@@ -113,8 +107,6 @@ lbl3.grid(column = 2, row = 2)
 i = IntVar()
 i.set(0)
 curr_question.set(q[order[i.get()]])
-
-plot(df, i)
 
 #add submit button
 button = ttk.Button(root, text ="Submit", command = lambda: submitPressed(df, i, order, tkvar.get(), a, curr_question, q))
@@ -133,4 +125,6 @@ popupMenu = OptionMenu(mainframe, tkvar, *choices)
 Label(mainframe, text="Choose a state", bg = 'aliceblue').grid(column = 2, row = 4, )
 popupMenu.grid(column = 2, row = 5)
 
+
+plot(df, i)
 root.mainloop()
